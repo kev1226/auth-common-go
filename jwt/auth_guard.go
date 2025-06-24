@@ -21,9 +21,10 @@ func AuthGuard(roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Guarda el ID y el correo para usarlos más adelante
+		c.Set("claims", claims)
 		c.Set("userID", claims.ID)
 		c.Set("email", claims.Email)
+
 		c.Next()
 	}
 }
