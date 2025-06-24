@@ -1,4 +1,3 @@
-// jwt/auth_guard.go
 package jwt
 
 import (
@@ -22,7 +21,7 @@ func AuthGuard(roles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Guarda el ID o correo si luego quieres usarlo en el handler
+		// Guarda el ID y el correo para usarlos más adelante
 		c.Set("userID", claims.ID)
 		c.Set("email", claims.Email)
 		c.Next()
@@ -32,8 +31,16 @@ func AuthGuard(roles ...string) gin.HandlerFunc {
 func hasRole(userRoles, requiredRoles []string) bool {
 	for _, required := range requiredRoles {
 		for _, user := range userRoles {
-			if strings.EqualFold(user, required) {
-				return true
+			// Si el rol requerido es "admin", solo "admin" puede pasar
+			if strings.EqualFold(required, "admin") {
+				if strings.EqualFold(user, "admin") {
+					return true
+				}
+			} else {
+				// Para cualquier otro rol, también se permite "admin" por jerarquía
+				if strings.EqualFold(user, required) || strings.EqualFold(user, "admin") {
+					return true
+				}
 			}
 		}
 	}
